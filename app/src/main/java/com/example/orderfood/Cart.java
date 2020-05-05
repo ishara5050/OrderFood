@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -20,6 +21,7 @@ import com.example.orderfood.Model.Request;
 import com.example.orderfood.ViewHolder.CartAdapter;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.rengwuxian.materialedittext.MaterialEditText;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -80,15 +82,14 @@ public class Cart extends AppCompatActivity {
         alertDialog.setTitle("One more step..");
         alertDialog.setMessage("Enter your address");
 
-        final EditText edtAddress=new EditText(Cart.this);
-        LinearLayout.LayoutParams lp =new LinearLayout.LayoutParams(
+        LayoutInflater inflator = this.getLayoutInflater();
+        View order_address_comment = inflator.inflate(R.layout.order_address_comment,null);
 
-                 LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT
-        );
+        final MaterialEditText edtAddress = (MaterialEditText)order_address_comment.findViewById(R.id.edtAddress);
+        final MaterialEditText edtComment = (MaterialEditText)order_address_comment.findViewById(R.id.edtComment);
 
-        edtAddress.setLayoutParams(lp);
-        alertDialog.setView(edtAddress); //add edittext to alert box
+
+        alertDialog.setView(order_address_comment);
         alertDialog.setIcon(R.drawable.ic_shopping_cart_black_24dp);
 
         alertDialog.setPositiveButton("YES", new DialogInterface.OnClickListener() {
@@ -100,6 +101,8 @@ public class Cart extends AppCompatActivity {
                         Common.currentUser.getName(),
                         edtAddress.getText().toString(),
                         txtTotalPrice.getText().toString(),
+                        "0",
+                        edtComment.getText().toString(),
                         cart
                 );
                 //********SUBMIT FIREBASE***********
