@@ -1,11 +1,14 @@
 package com.example.orderfood;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,14 +18,24 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.orderfood.Common.Common;
+import com.example.orderfood.Common.Config;
 import com.example.orderfood.Database.Database;
 import com.example.orderfood.Model.Order;
 import com.example.orderfood.Model.Request;
 import com.example.orderfood.ViewHolder.CartAdapter;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.paypal.android.sdk.payments.PayPalConfiguration;
+import com.paypal.android.sdk.payments.PayPalPayment;
+import com.paypal.android.sdk.payments.PayPalService;
+import com.paypal.android.sdk.payments.PaymentActivity;
+import com.paypal.android.sdk.payments.PaymentConfirmation;
 import com.rengwuxian.materialedittext.MaterialEditText;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +45,7 @@ import info.hoang8f.widget.FButton;
 
 public class Cart extends AppCompatActivity {
 
+    private static final int PAYPAL_REQUEST_CODE =9999 ;
     RecyclerView recyclerView;
     RecyclerView.LayoutManager layoutManager;
 
@@ -43,11 +57,25 @@ public class Cart extends AppCompatActivity {
     List<Order> cart= new ArrayList<>();
     CartAdapter adapter;
 
+    //paypal payment
+
+    static PayPalConfiguration config=new PayPalConfiguration()
+            .environment(PayPalConfiguration.ENVIRONMENT_SANDBOX)
+            .clientId(Config.PAYPAL_CLIENT_ID);
+    String address,comment;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cart);
+
+        Intent intent=new Intent(this, PayPalService.class);
+        intent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION,config);
+        startService(intent);
+
+
 
         database=FirebaseDatabase.getInstance();
         requests=database.getReference("Requests");
@@ -96,22 +124,43 @@ public class Cart extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
-                Request request=new Request(
-                        Common.currentUser.getPhone(),
-                        Common.currentUser.getName(),
-                        edtAddress.getText().toString(),
-                        txtTotalPrice.getText().toString(),
-                        "0",
-                        edtComment.getText().toString(),
-                        cart
-                );
-                //********SUBMIT FIREBASE***********
-                requests.child(String.valueOf(System.currentTimeMillis()))
-                        .setValue(request);
+                //show paypal to payment
 
-                new Database(getBaseContext()).cleanCart();
-                Toast.makeText(Cart.this, "Thank You. Order Placed !!", Toast.LENGTH_SHORT).show();
-                finish();
+
+                address=edtAddress.getText().toString();
+                comment=edtComment.getText().toString();
+
+                String formatAmount =txtTotalPrice.getText().toString()
+                        .replace("$","")
+                        .replace(",","");
+
+                PayPalPayment payPalPayment =new PayPalPayment(new BigDecimal(formatAmount),
+                        "USD",
+                        "Bon Cafe Order",
+                        PayPalPayment.PAYMENT_INTENT_SALE);
+
+                Intent intent=new Intent(getApplicationContext(), PaymentActivity.class);
+                intent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION,config);
+                intent.putExtra(PaymentActivity.EXTRA_PAYMENT,payPalPayment);
+                startActivityForResult(intent,PAYPAL_REQUEST_CODE);
+
+
+//                Request request=new Request(
+//                        Common.currentUser.getPhone(),
+//                        Common.currentUser.getName(),
+//                        edtAddress.getText().toString(),
+//                        txtTotalPrice.getText().toString(),
+//                        "0",
+//                        edtComment.getText().toString(),
+//                        cart
+//                );
+//                //********SUBMIT FIREBASE***********
+//                requests.child(String.valueOf(System.currentTimeMillis()))
+//                        .setValue(request);
+//
+//                new Database(getBaseContext()).cleanCart();
+//                Toast.makeText(Cart.this, "Thank You. Order Placed !!", Toast.LENGTH_SHORT).show();
+//                finish();
 
 
             }
@@ -127,6 +176,52 @@ public class Cart extends AppCompatActivity {
         alertDialog.show();
 
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+
+        if (requestCode == PAYPAL_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                PaymentConfirmation confirmation = data.getParcelableExtra(PaymentActivity.EXTRA_RESULT_CONFIRMATION);
+                if (confirmation != null) {
+                    try {
+                        String paymentDetail = confirmation.toJSONObject().toString(4);
+                        JSONObject jsonObject = new JSONObject(paymentDetail);
+
+                        Request request = new Request(
+                                Common.currentUser.getPhone(),
+                                Common.currentUser.getName(),
+                                address,
+                                txtTotalPrice.getText().toString(),
+                                "0",
+                                comment,
+                                jsonObject.getJSONObject("response").getString("state"),
+                                cart
+                        );
+                        //********SUBMIT FIREBASE***********
+                        requests.child(String.valueOf(System.currentTimeMillis()))
+                                .setValue(request);
+
+                        new Database(getBaseContext()).cleanCart();
+                        Toast.makeText(Cart.this, "Thank You. Order Placed !!", Toast.LENGTH_SHORT).show();
+                        finish();
+
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            else if (requestCode== Activity.RESULT_CANCELED)
+            {
+                Toast.makeText(this, "Payment Cancaled", Toast.LENGTH_SHORT).show();
+            }
+            else if (requestCode==PaymentActivity.RESULT_EXTRAS_INVALID)
+            {
+                Toast.makeText(this, "Invalid Payment", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private void LoadListFood() {
