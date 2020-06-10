@@ -22,31 +22,31 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-class CartViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
-
-    public TextView txt_cart_name,txt_price;
-    public ImageView img_cart_count;
-
-    private ItemClickListner itemClickListner;
-
-    public void setTxt_cart_name(TextView txt_cart_name) {
-        this.txt_cart_name = txt_cart_name;
-    }
-
-    public CartViewHolder(@NonNull View itemView) {
-        super(itemView);
-
-        txt_cart_name=(TextView)itemView.findViewById(R.id.cart_item_name);
-        txt_price=(TextView)itemView.findViewById(R.id.cart_item_price);
-        img_cart_count=(ImageView)itemView.findViewById(R.id.cart_item_count0);
-
-    }
-
-    @Override
-    public void onClick(View v) {
-
-    }
-}
+//class CartViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+//
+//    public TextView txt_cart_name,txt_price;
+//    public ImageView img_cart_count;
+//
+//    private ItemClickListner itemClickListner;
+//
+//    public void setTxt_cart_name(TextView txt_cart_name) {
+//        this.txt_cart_name = txt_cart_name;
+//    }
+//
+//    public CartViewHolder(@NonNull View itemView) {
+//        super(itemView);
+//
+//        txt_cart_name=(TextView)itemView.findViewById(R.id.cart_item_name);
+//        txt_price=(TextView)itemView.findViewById(R.id.cart_item_price);
+//        img_cart_count=(ImageView)itemView.findViewById(R.id.cart_item_count0);
+//
+//    }
+//
+//    @Override
+//    public void onClick(View v) {
+//
+//    }
+//}
 
 
 
@@ -87,4 +87,26 @@ public class CartAdapter extends RecyclerView.Adapter<CartViewHolder> {
     public int getItemCount() {
         return listData.size();
     }
+
+    public Order getItem(int position)
+    {
+        return listData.get(position);
+    }
+
+    public void removeItem(int position){
+
+        listData.remove(position);
+        notifyItemRemoved(position);
+    }
+
+    public void restoreItem(Order item,int position){
+
+        listData.add(position,item);
+        notifyItemInserted(position);
+    }
+
+
+
+
+
 }

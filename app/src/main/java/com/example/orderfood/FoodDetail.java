@@ -2,6 +2,7 @@ package com.example.orderfood;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -9,7 +10,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cepheuen.elegantnumberbutton.view.ElegantNumberButton;
+import com.example.orderfood.Common.Common;
 import com.example.orderfood.Database.Database;
+import com.example.orderfood.Model.Calls;
 import com.example.orderfood.Model.Food;
 import com.example.orderfood.Model.Order;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
@@ -33,7 +36,11 @@ public class FoodDetail extends AppCompatActivity {
 
     FirebaseDatabase database;
     DatabaseReference food;
+    DatabaseReference call;
     Food currentFood;
+
+    FloatingActionButton cartbutton;
+    FloatingActionButton fabcall;
 
 
     @Override
@@ -43,9 +50,12 @@ public class FoodDetail extends AppCompatActivity {
 
         database=FirebaseDatabase.getInstance();
         food=database.getReference("Food");
+        call=database.getReference("Calls");
 
         numberButton=(ElegantNumberButton)findViewById(R.id.number_button);
         btnCart=(FloatingActionButton)findViewById(R.id.btnCart);
+        cartbutton=(FloatingActionButton) findViewById(R.id.fabfoods);
+        fabcall=(FloatingActionButton)findViewById(R.id.fabcall);
 
         //add to cart Function
 
@@ -63,6 +73,30 @@ public class FoodDetail extends AppCompatActivity {
                 ));
 
                 Toast.makeText(FoodDetail.this, "Added to Cart", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        cartbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+               /* Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();*/
+                Intent cartIntent=new Intent(FoodDetail.this,Cart.class);
+                startActivity(cartIntent);
+
+            }
+        });
+
+        fabcall.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Calls calls=new Calls(Common.currentUser.getName()); // get current user
+                call.child(String.valueOf(System.currentTimeMillis())) //set new child in Calls
+                        .setValue(calls);
+
+                Toast.makeText(FoodDetail.this, "Please Wait..", Toast.LENGTH_SHORT).show();
+
+
             }
         });
 

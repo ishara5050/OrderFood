@@ -1,19 +1,24 @@
 package com.example.orderfood;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.example.orderfood.Common.Common;
 import com.example.orderfood.Interface.ItemClickListner;
+import com.example.orderfood.Model.Calls;
 import com.example.orderfood.Model.Food;
 import com.example.orderfood.ViewHolder.FoodViewHolder;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
@@ -26,10 +31,14 @@ public class FoodList extends AppCompatActivity {
 
     FirebaseDatabase database;
     DatabaseReference foodList;
+    DatabaseReference call;
     public static final String TAG="test";
-    RelativeLayout rootLayout;
+    CoordinatorLayout rootLayout;
     RecyclerView recyclerView;
     RecyclerView.LayoutManager layoutManager;
+    FloatingActionButton cartbutton;
+    FloatingActionButton fabcall;
+
 
     String catagoryId="";
     FirebaseRecyclerAdapter<Food,FoodViewHolder> adapter;
@@ -42,13 +51,43 @@ public class FoodList extends AppCompatActivity {
 
         database = FirebaseDatabase.getInstance();
         foodList = database.getReference("Food");
+        call=database.getReference("Calls");
+        cartbutton=(FloatingActionButton) findViewById(R.id.fabfoods);
+        fabcall=(FloatingActionButton)findViewById(R.id.fabcall);
 
 
         recyclerView = (RecyclerView) findViewById(R.id.recycler_food);
         recyclerView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-        rootLayout=(RelativeLayout)findViewById(R.id.rootLayout);
+        rootLayout=(CoordinatorLayout) findViewById(R.id.rootLayout);
+
+        cartbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+               /* Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();*/
+                Intent cartIntent=new Intent(FoodList.this,Cart.class);
+                startActivity(cartIntent);
+
+            }
+        });
+
+        fabcall.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Calls calls=new Calls(Common.currentUser.getName()); // get current user
+                call.child(String.valueOf(System.currentTimeMillis())) //set new child in Calls
+                        .setValue(calls);
+
+                Toast.makeText(FoodList.this, "Please Wait..", Toast.LENGTH_SHORT).show();
+
+
+            }
+        });
+
+
+
 
        calendar=Calendar.getInstance();
         //SimpleDateFormat simpleDateFormat=new SimpleDateFormat("HH:MM:SS");
@@ -81,13 +120,15 @@ public class FoodList extends AppCompatActivity {
             loadListFood(catagoryId);
         }
 
+
     }
 
     private void loadListFood(String catagoryId) {
         adapter=new FirebaseRecyclerAdapter<Food, FoodViewHolder>(Food.class,
                 R.layout.food_item,
                 FoodViewHolder.class,
-                foodList.orderByChild("menuId").equalTo(catagoryId) //Food list load wenne na MenuId-->menuId
+                //foodList.orderByChild("menuId").equalTo(catagoryId) //Food list load wenne na MenuId-->menuId
+                foodList.orderByChild("menuId_default_status").equalTo(catagoryId+"_All_Yes")
 
 
         ) {
@@ -118,4 +159,6 @@ public class FoodList extends AppCompatActivity {
     }
 
 
+
 }
+

@@ -9,6 +9,7 @@ public class Request {
     private String address;
     private String total;
     private String status;
+    private String time;
     private String comment;
     private String paymentState;
     private List<Order> foods;
@@ -16,12 +17,13 @@ public class Request {
     public Request() {
     }
 
-    public Request(String phone, String name, String address, String total, String status, String comment, String paymentState, List<Order> foods) {
+    public Request(String phone, String name, String address, String total, String status, String time, String comment, String paymentState, List<Order> foods) {
         this.phone = phone;
         this.name = name;
         this.address = address;
         this.total = total;
         this.status = status;
+        this.time = time;
         this.comment = comment;
         this.paymentState = paymentState;
         this.foods = foods;
@@ -65,6 +67,14 @@ public class Request {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
     }
 
     public String getComment() {

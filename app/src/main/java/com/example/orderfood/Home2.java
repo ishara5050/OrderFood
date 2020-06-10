@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import com.example.orderfood.Common.Common;
 import com.example.orderfood.Interface.ItemClickListner;
+import com.example.orderfood.Model.Calls;
 import com.example.orderfood.Model.Catagory;
 import com.example.orderfood.Service.ListenOrder;
 import com.example.orderfood.ViewHolder.MenuViewHolder;
@@ -43,11 +44,13 @@ public class Home2 extends AppCompatActivity implements NavigationView.OnNavigat
 
     FirebaseDatabase database;
     DatabaseReference catagory;
+    DatabaseReference call;
     TextView txtFullName;
 
     RecyclerView recycler_menu;
     RecyclerView.LayoutManager layoutManager;
     FirebaseRecyclerAdapter<Catagory, MenuViewHolder> adapter;
+    FloatingActionButton fabcall;
 
     private AppBarConfiguration mAppBarConfiguration;
 
@@ -58,10 +61,26 @@ public class Home2 extends AppCompatActivity implements NavigationView.OnNavigat
 
         database=FirebaseDatabase.getInstance();
         catagory=database.getReference("Catagory");
+        call=database.getReference("Calls");
         recycler_menu=(RecyclerView)findViewById(R.id.recycler_menu);
         recycler_menu.setHasFixedSize(true);
         layoutManager=new LinearLayoutManager(this);
         recycler_menu.setLayoutManager(layoutManager);
+        fabcall=(FloatingActionButton)findViewById(R.id.fabcall);
+
+
+        fabcall.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Calls calls=new Calls(Common.currentUser.getName()); // get current user
+                call.child(String.valueOf(System.currentTimeMillis())) //set new child in Calls
+                        .setValue(calls);
+
+                Toast.makeText(Home2.this, "Please Wait..", Toast.LENGTH_SHORT).show();
+
+
+            }
+        });
 
 
 

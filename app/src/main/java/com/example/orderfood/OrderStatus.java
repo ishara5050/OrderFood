@@ -5,8 +5,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Toast;
 
 import com.example.orderfood.Common.Common;
+import com.example.orderfood.Interface.ItemClickListner;
 import com.example.orderfood.Model.Request;
 import com.example.orderfood.ViewHolder.OrderViewHolder;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
@@ -70,12 +73,21 @@ public class OrderStatus extends AppCompatActivity {
                 orderViewHolder.txtOrderStatus.setText(Common.convertCodeToStatus(request.getStatus()));// change check error
                 orderViewHolder.txtOrderPhone.setText(request.getPhone());
                 orderViewHolder.txtOrderAddress.setText(request.getAddress());
+                orderViewHolder.txtOrdetTime.setText(request.getTime());
+
+                orderViewHolder.setItemClickListner(new ItemClickListner() {
+                    @Override
+                    public void onClick(View view, int position, boolean isLongClick) {
+                        Toast.makeText(OrderStatus.this, "Clicked !", Toast.LENGTH_SHORT).show();
+                    }
+                });
 
 
             }
         };
         recyclerView.setAdapter(adapter);
     }
+
 
 
 
