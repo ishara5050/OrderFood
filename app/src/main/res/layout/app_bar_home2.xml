@@ -23,7 +23,10 @@
 
 
     </com.google.android.material.appbar.AppBarLayout>
-    <include layout="@layout/content_home2" />
+
+    <include
+        android:id="@+id/include"
+        layout="@layout/content_home2" />
 
 
   <LinearLayout
@@ -36,8 +39,8 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:id="@+id/fab"
-          android:backgroundTint="@android:color/white"
           android:layout_margin="8sp"
+          android:backgroundTint="@android:color/white"
           app:srcCompat="@drawable/ic_shopping_cart_black_24dp"/>
 
       <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -51,7 +54,18 @@
 
   </LinearLayout>
 
-<!--        <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabemprating"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:layout_marginTop="60sp"
+        android:layout_marginRight="8sp"
+        android:layout_gravity="right"
+        android:backgroundTint="@android:color/white"
+        app:srcCompat="@drawable/ic_star_border_black_24dp" />
+
+    <!--        <com.google.android.material.floatingactionbutton.FloatingActionButton-->
 <!--            android:layout_width="wrap_content"-->
 <!--            android:layout_height="wrap_content"-->
 <!--            android:id="@+id/fab"-->

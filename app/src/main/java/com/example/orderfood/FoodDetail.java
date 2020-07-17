@@ -39,17 +39,19 @@ public class FoodDetail extends AppCompatActivity implements RatingDialogListene
     TextView food_name,food_price,food_description;
     ImageView food_image;
     CollapsingToolbarLayout collapsingToolbarLayout;
-    FloatingActionButton btnCart,btnRating;
+    FloatingActionButton btnCart,btnRating;//
     ElegantNumberButton numberButton;
     RatingBar ratingBar;
 
 
     String foodId="";
+    //String FOODID="";
+    //String AVERAGE="";
 
     FirebaseDatabase database;
     DatabaseReference food;
     DatabaseReference call;
-    DatabaseReference ratingTbl;
+    DatabaseReference ratingTbl; //
     Food currentFood;
 
     FloatingActionButton cartbutton;
@@ -70,7 +72,7 @@ public class FoodDetail extends AppCompatActivity implements RatingDialogListene
         btnCart=(FloatingActionButton)findViewById(R.id.btnCart);
         cartbutton=(FloatingActionButton) findViewById(R.id.fabfoods);
         fabcall=(FloatingActionButton)findViewById(R.id.fabcall);
-        btnRating=(FloatingActionButton)findViewById(R.id.btn_rating);
+        btnRating=(FloatingActionButton)findViewById(R.id.btn_rating);//
         ratingBar=(RatingBar)findViewById(R.id.ratingBar);
 
 
@@ -145,12 +147,13 @@ public class FoodDetail extends AppCompatActivity implements RatingDialogListene
 
     }
 
-    private void getRating(String foodId) {
+    private void getRating(final String foodId) {
 
         com.google.firebase.database.Query foodRating = ratingTbl.orderByChild("foodId").equalTo(foodId);
 
         foodRating.addValueEventListener(new ValueEventListener() {
             int count=0,sum=0;
+
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot postSnapShop:dataSnapshot.getChildren())
@@ -158,11 +161,20 @@ public class FoodDetail extends AppCompatActivity implements RatingDialogListene
                     Rating item =postSnapShop.getValue(Rating.class);
                     sum+=Integer.parseInt(item.getRateValue());
                     count++;
+
                 }
                 if (count!=0)
                 {
+
                     float average=sum/count;
+
+
+
                     ratingBar.setRating(average);
+
+
+
+
                 }
             }
 
@@ -245,6 +257,10 @@ public class FoodDetail extends AppCompatActivity implements RatingDialogListene
 //                    ratingTbl.child(Common.currentUser.getPhone()).setValue(rating);
 //                }
                 ratingTbl.child(UUID.randomUUID().toString()).setValue(rating);
+                //ratingTbl.child(foodId).setValue(rating);
+                //food.child(foodId).child("rating").setValue(AVERAGE);
+
+
                 Toast.makeText(FoodDetail.this, "Thank You for the feedback !!", Toast.LENGTH_SHORT).show();
             }
 

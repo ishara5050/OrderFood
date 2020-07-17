@@ -13,6 +13,7 @@ import com.example.orderfood.Interface.ItemClickListner;
 import com.example.orderfood.Model.Catagory;
 import com.example.orderfood.ViewHolder.MenuViewHolder;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
@@ -27,6 +28,7 @@ public class Home extends AppCompatActivity {
     RecyclerView.LayoutManager layoutManager;
     FirebaseRecyclerAdapter<Catagory,MenuViewHolder> adapter;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,6 +41,7 @@ public class Home extends AppCompatActivity {
         recycler_menu.setHasFixedSize(true);
         layoutManager=new LinearLayoutManager(this);
         recycler_menu.setLayoutManager(layoutManager);
+
 
         loadMenu();
 

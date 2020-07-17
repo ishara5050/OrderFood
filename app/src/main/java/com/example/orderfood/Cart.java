@@ -1,5 +1,6 @@
 package com.example.orderfood;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,7 +12,9 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -35,6 +38,7 @@ import com.paypal.android.sdk.payments.PayPalService;
 import com.paypal.android.sdk.payments.PaymentActivity;
 import com.paypal.android.sdk.payments.PaymentConfirmation;
 import com.rengwuxian.materialedittext.MaterialEditText;
+import com.stepstone.apprating.AppRatingDialog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -100,7 +104,10 @@ public class Cart extends AppCompatActivity implements RecyclerItemTouchHelperLi
             @Override
             public void onClick(View v) {
 
+                if (cart.size()>0)
                 showAlertDialog();
+                else
+                    Toast.makeText(Cart.this, "Your Cart is empty", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -236,6 +243,7 @@ public class Cart extends AppCompatActivity implements RecyclerItemTouchHelperLi
 
         cart=new Database(this).getCarts();
         adapter=new CartAdapter(cart,this);
+        adapter.notifyDataSetChanged();
         recyclerView.setAdapter(adapter);
 
         int total=0;
@@ -272,5 +280,22 @@ public class Cart extends AppCompatActivity implements RecyclerItemTouchHelperLi
 
             txtTotalPrice.setText(fmt.format(total));
         }
+    }
+
+
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        if (item.getTitle().equals(Common.DELETE))
+            deleteCart(item.getOrder());
+        return true;
+    }
+
+    private void deleteCart(int position) {
+        cart.remove(position);
+        new Database(this).cleanCart();
+        for (Order item:cart)
+            new Database(this).addToCart(item);
+
+        LoadListFood();
     }
 }

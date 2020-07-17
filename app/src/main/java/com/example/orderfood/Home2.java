@@ -7,6 +7,8 @@ import com.example.orderfood.Common.Common;
 import com.example.orderfood.Interface.ItemClickListner;
 import com.example.orderfood.Model.Calls;
 import com.example.orderfood.Model.Catagory;
+import com.example.orderfood.Model.EmployeeRating;
+import com.example.orderfood.Model.Rating;
 import com.example.orderfood.Service.ListenOrder;
 import com.example.orderfood.ViewHolder.MenuViewHolder;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
@@ -25,9 +27,14 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
+import com.stepstone.apprating.AppRatingDialog;
+import com.stepstone.apprating.listener.RatingDialogListener;
 
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -40,17 +47,24 @@ import android.view.Menu;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class Home2 extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Arrays;
+import java.util.UUID;
+
+public class Home2 extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, RatingDialogListener {
 
     FirebaseDatabase database;
     DatabaseReference catagory;
     DatabaseReference call;
+    DatabaseReference empratingTbl;
     TextView txtFullName;
 
     RecyclerView recycler_menu;
     RecyclerView.LayoutManager layoutManager;
     FirebaseRecyclerAdapter<Catagory, MenuViewHolder> adapter;
     FloatingActionButton fabcall;
+    FloatingActionButton btneEmpRating;
 
     private AppBarConfiguration mAppBarConfiguration;
 
@@ -62,11 +76,13 @@ public class Home2 extends AppCompatActivity implements NavigationView.OnNavigat
         database=FirebaseDatabase.getInstance();
         catagory=database.getReference("Catagory");
         call=database.getReference("Calls");
+        empratingTbl=database.getReference("EmployeeRating");
         recycler_menu=(RecyclerView)findViewById(R.id.recycler_menu);
         recycler_menu.setHasFixedSize(true);
         layoutManager=new LinearLayoutManager(this);
         recycler_menu.setLayoutManager(layoutManager);
         fabcall=(FloatingActionButton)findViewById(R.id.fabcall);
+        btneEmpRating=(FloatingActionButton)findViewById(R.id.fabemprating);
 
 
         fabcall.setOnClickListener(new View.OnClickListener() {
@@ -79,6 +95,13 @@ public class Home2 extends AppCompatActivity implements NavigationView.OnNavigat
                 Toast.makeText(Home2.this, "Please Wait..", Toast.LENGTH_SHORT).show();
 
 
+            }
+        });
+
+        btneEmpRating.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showEmpRatingDialog();
             }
         });
 
@@ -119,6 +142,25 @@ public class Home2 extends AppCompatActivity implements NavigationView.OnNavigat
         View headerView = navigationView.getHeaderView(0);
         txtFullName = headerView.findViewById(R.id.txtFulName);
         txtFullName.setText(Common.currentUser.getName());
+    }
+
+    private void showEmpRatingDialog() {
+        new AppRatingDialog.Builder()
+                .setPositiveButtonText("Rate Waiter")
+                .setNegativeButtonText("Cancel")
+                .setNoteDescriptions(Arrays.asList("Bad Service","Not Friendly","Normal","Good Service","Excellent Service"))
+                .setDefaultRating(1)
+                .setTitle("Rate Employee")
+                .setDescription("Please select rating")
+                .setTitleTextColor(R.color.colorPrimary)
+                .setDescriptionTextColor(R.color.colorPrimary)
+                .setHint("Add Waiter ID Here")
+                .setHintTextColor(R.color.colorAccent)
+                .setCommentTextColor(android.R.color.white)
+                .setCommentBackgroundColor(R.color.colorPrimaryDark)
+                .setWindowAnimation(R.style.RatingDialogFadeAnim)
+                .create(Home2.this)
+                .show();
     }
 
     private void loadMenu() {
@@ -212,5 +254,36 @@ public class Home2 extends AppCompatActivity implements NavigationView.OnNavigat
     }
 
 
+    @Override
+    public void onNegativeButtonClicked() {
 
+    }
+
+    @Override
+    public void onPositiveButtonClicked(int value, @NotNull String empID) {
+
+        final EmployeeRating rating = new EmployeeRating(Common.currentUser.getPhone(),
+                empID,
+
+                String.valueOf(value)
+                );
+        empratingTbl.child(Common.currentUser.getPhone()).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                empratingTbl.child(UUID.randomUUID().toString()).setValue(rating);
+
+
+
+
+                Toast.makeText(Home2.this, "Thank You for the feedback !!", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+    }
 }

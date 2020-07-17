@@ -18,6 +18,8 @@ public class Common {
             return "Shipped";
     }
 
+    public static final String DELETE="Delete";
+
 
 
 
