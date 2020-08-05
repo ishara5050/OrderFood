@@ -31,7 +31,9 @@ import com.stepstone.apprating.listener.RatingDialogListener;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.text.DateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.UUID;
 
 public class FoodDetail extends AppCompatActivity implements RatingDialogListener {
@@ -239,10 +241,13 @@ public class FoodDetail extends AppCompatActivity implements RatingDialogListene
     @Override
     public void onPositiveButtonClicked(int value, @NotNull String comments) {
 
+        Calendar calendar=Calendar.getInstance();
+        String date= DateFormat.getDateInstance().format(calendar.getTime());
+
         final Rating rating = new Rating(Common.currentUser.getPhone(),
                 foodId,
                 String.valueOf(value),
-                comments);
+                comments,date);
         ratingTbl.child(Common.currentUser.getPhone()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {

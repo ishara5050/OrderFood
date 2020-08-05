@@ -127,8 +127,8 @@ public class FoodList extends AppCompatActivity {
         adapter=new FirebaseRecyclerAdapter<Food, FoodViewHolder>(Food.class,
                 R.layout.food_item,
                 FoodViewHolder.class,
-                //foodList.orderByChild("menuId").equalTo(catagoryId) //Food list load wenne na MenuId-->menuId
-                foodList.orderByChild("menuId_default_status").equalTo(catagoryId+"_All_Yes")
+                foodList.orderByChild("menuId").equalTo(catagoryId) //Dinner
+                //foodList.orderByChild("menuId_default_status").equalTo(catagoryId+"_All_Yes") // lunch
 
 
         ) {

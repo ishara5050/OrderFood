@@ -49,7 +49,9 @@ import android.widget.Toast;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.text.DateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.UUID;
 
 public class Home2 extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, RatingDialogListener {
@@ -262,10 +264,13 @@ public class Home2 extends AppCompatActivity implements NavigationView.OnNavigat
     @Override
     public void onPositiveButtonClicked(int value, @NotNull String empID) {
 
+        Calendar calendar=Calendar.getInstance();
+        String date= DateFormat.getDateInstance().format(calendar.getTime());
+
         final EmployeeRating rating = new EmployeeRating(Common.currentUser.getPhone(),
                 empID,
 
-                String.valueOf(value)
+                String.valueOf(value),date
                 );
         empratingTbl.child(Common.currentUser.getPhone()).addValueEventListener(new ValueEventListener() {
             @Override

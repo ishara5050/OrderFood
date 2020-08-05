@@ -44,8 +44,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.math.BigDecimal;
+import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -203,6 +205,9 @@ public class Cart extends AppCompatActivity implements RecyclerItemTouchHelperLi
                         String paymentDetail = confirmation.toJSONObject().toString(4);
                         JSONObject jsonObject = new JSONObject(paymentDetail);
 
+                        Calendar calendar=Calendar.getInstance();
+                        String currentDate= DateFormat.getDateInstance().format(calendar.getTime());
+
                         Request request = new Request(
                                 Common.currentUser.getPhone(),
                                 Common.currentUser.getName(),
@@ -212,6 +217,7 @@ public class Cart extends AppCompatActivity implements RecyclerItemTouchHelperLi
                                 "0",
                                 comment,
                                 jsonObject.getJSONObject("response").getString("state"),
+                                currentDate,
                                 cart
                         );
                         //********SUBMIT FIREBASE***********

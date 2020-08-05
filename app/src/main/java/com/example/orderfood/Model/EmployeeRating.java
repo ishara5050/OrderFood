@@ -6,14 +6,16 @@ public class EmployeeRating {
     public String userPhone;
     public String employeeId;
     public String rateValue;
+    public String date;
 
     public EmployeeRating() {
     }
 
-    public EmployeeRating(String userPhone, String employeeId, String rateValue) {
+    public EmployeeRating(String userPhone, String employeeId, String rateValue, String date) {
         this.userPhone = userPhone;
         this.employeeId = employeeId;
         this.rateValue = rateValue;
+        this.date = date;
     }
 
     public String getUserPhone() {
@@ -38,5 +40,13 @@ public class EmployeeRating {
 
     public void setRateValue(String rateValue) {
         this.rateValue = rateValue;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 }

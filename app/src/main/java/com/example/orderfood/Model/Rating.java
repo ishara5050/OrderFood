@@ -6,15 +6,17 @@ public class Rating {
     public String foodId;
     public String rateValue;
     public String comment;
+    public String date;
 
     public Rating() {
     }
 
-    public Rating(String userPhone, String foodId, String rateValue, String comment) {
+    public Rating(String userPhone, String foodId, String rateValue, String comment, String date) {
         this.userPhone = userPhone;
         this.foodId = foodId;
         this.rateValue = rateValue;
         this.comment = comment;
+        this.date = date;
     }
 
     public String getUserPhone() {
@@ -47,5 +49,13 @@ public class Rating {
 
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 }
