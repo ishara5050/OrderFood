@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -67,6 +68,8 @@ public class Cart extends AppCompatActivity implements RecyclerItemTouchHelperLi
     List<Order> cart= new ArrayList<>();
     CartAdapter adapter;
 
+
+
     //paypal payment
 
     static PayPalConfiguration config=new PayPalConfiguration()
@@ -102,6 +105,9 @@ public class Cart extends AppCompatActivity implements RecyclerItemTouchHelperLi
         btnPlace=(FButton)findViewById(R.id.btnPlaceOrder);
         txtTotalPrice=(TextView)findViewById(R.id.total);
 
+
+
+
         btnPlace.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -132,6 +138,9 @@ public class Cart extends AppCompatActivity implements RecyclerItemTouchHelperLi
         final MaterialEditText edtAddress = (MaterialEditText)order_address_comment.findViewById(R.id.edtAddress);
         final MaterialEditText edtComment = (MaterialEditText)order_address_comment.findViewById(R.id.edtComment);
 
+        final RadioButton rdbOnline =(RadioButton)order_address_comment.findViewById(R.id.rdbOnline);
+        final RadioButton rdbCash =(RadioButton)order_address_comment.findViewById(R.id.rdbCash);
+
 
         alertDialog.setView(order_address_comment);
         alertDialog.setIcon(R.drawable.ic_shopping_cart_black_24dp);
@@ -140,26 +149,60 @@ public class Cart extends AppCompatActivity implements RecyclerItemTouchHelperLi
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
-                //show paypal to payment
 
+
+                //*******show paypal to payment *********************
 
                 address=edtAddress.getText().toString();
                 comment=edtComment.getText().toString();
 
-                String formatAmount =txtTotalPrice.getText().toString()
-                        .replace("$","")
-                        .replace(",","");
+                if (!rdbOnline.isChecked()&&!rdbCash.isChecked())
+                {
+                    Toast.makeText(Cart.this, "Please select payment method", Toast.LENGTH_SHORT).show();
+                }
+                else if (rdbOnline.isChecked()) {
 
-                PayPalPayment payPalPayment =new PayPalPayment(new BigDecimal(formatAmount),
-                        "USD",
-                        "Bon Cafe Order",
-                        PayPalPayment.PAYMENT_INTENT_SALE);
+                    String formatAmount = txtTotalPrice.getText().toString()
+                            .replace("$", "")
+                            .replace(",", "");
 
-                Intent intent=new Intent(getApplicationContext(), PaymentActivity.class);
-                intent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION,config);
-                intent.putExtra(PaymentActivity.EXTRA_PAYMENT,payPalPayment);
-                startActivityForResult(intent,PAYPAL_REQUEST_CODE);
+                    PayPalPayment payPalPayment = new PayPalPayment(new BigDecimal(formatAmount),
+                            "USD",
+                            "Bon Cafe Order",
+                            PayPalPayment.PAYMENT_INTENT_SALE);
 
+                    Intent intent = new Intent(getApplicationContext(), PaymentActivity.class);
+                    intent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION, config);
+                    intent.putExtra(PaymentActivity.EXTRA_PAYMENT, payPalPayment);
+                    startActivityForResult(intent, PAYPAL_REQUEST_CODE);
+                }
+
+                else if (rdbCash.isChecked())
+                {
+                    Calendar calendar=Calendar.getInstance();
+                    String currentDate= DateFormat.getDateInstance().format(calendar.getTime());
+
+                    Request request = new Request(
+                            Common.currentUser.getPhone(),
+                            Common.currentUser.getName(),
+                            address,
+                            txtTotalPrice.getText().toString(),
+                            "0",
+                            "0",
+                            comment,
+                            "cash payment",
+
+                            currentDate,
+                            cart
+                    );
+                    //********SUBMIT FIREBASE***********
+                    requests.child(String.valueOf(System.currentTimeMillis()))
+                            .setValue(request);
+
+                    new Database(getBaseContext()).cleanCart();
+                    Toast.makeText(Cart.this, "Thank You. Order Placed !!", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
 
 //                Request request=new Request(
 //                        Common.currentUser.getPhone(),
@@ -197,6 +240,7 @@ public class Cart extends AppCompatActivity implements RecyclerItemTouchHelperLi
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 
+        super.onActivityResult(requestCode, resultCode, data); // Suggestion
         if (requestCode == PAYPAL_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 PaymentConfirmation confirmation = data.getParcelableExtra(PaymentActivity.EXTRA_RESULT_CONFIRMATION);
@@ -205,8 +249,8 @@ public class Cart extends AppCompatActivity implements RecyclerItemTouchHelperLi
                         String paymentDetail = confirmation.toJSONObject().toString(4);
                         JSONObject jsonObject = new JSONObject(paymentDetail);
 
-                        Calendar calendar=Calendar.getInstance();
-                        String currentDate= DateFormat.getDateInstance().format(calendar.getTime());
+                        Calendar calendar = Calendar.getInstance();
+                        String currentDate = DateFormat.getDateInstance().format(calendar.getTime());
 
                         Request request = new Request(
                                 Common.currentUser.getPhone(),
@@ -233,13 +277,9 @@ public class Cart extends AppCompatActivity implements RecyclerItemTouchHelperLi
                         e.printStackTrace();
                     }
                 }
-            }
-            else if (requestCode== Activity.RESULT_CANCELED)
-            {
+            } else if (requestCode == Activity.RESULT_CANCELED) {
                 Toast.makeText(this, "Payment Cancaled", Toast.LENGTH_SHORT).show();
-            }
-            else if (requestCode==PaymentActivity.RESULT_EXTRAS_INVALID)
-            {
+            } else if (requestCode == PaymentActivity.RESULT_EXTRAS_INVALID) {
                 Toast.makeText(this, "Invalid Payment", Toast.LENGTH_SHORT).show();
             }
         }
